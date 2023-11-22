@@ -31,7 +31,6 @@ app.post("/create-thread", async (req, res) => {
 });
 
 app.post("/create-message", async (req, res) => {
-  console.log(req.body);
   try {
     const { threadId, messageText } = req.body;
     const message = await openai.beta.threads.messages.create(threadId, {
@@ -103,7 +102,6 @@ app.post("/cancel-run", async (req, res) => {
 app.post("/get-messages", async (req, res) => {
   try {
     const { threadId } = req.body;
-    console.log(threadId);
     const messages = await openai.beta.threads.messages.list(threadId);
     res.json({ messages, success: true }).status(200);
   } catch (error) {
