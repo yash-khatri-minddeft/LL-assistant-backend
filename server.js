@@ -1,9 +1,11 @@
 const express = require("express");
 const { default: OpenAI } = require("openai");
 const app = express();
-require("dotenv").config();
-
+const ServerlessHttp = require("serverless-http");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
+require("dotenv").config();
 
 // parse application/json
 app.use(bodyParser.json());
@@ -11,7 +13,6 @@ const { ASSISTANT_ID, OPENAI_API_KEY } = process.env;
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
-const cors = require("cors");
 app.use(
   cors({
     origin: "*",
@@ -128,7 +129,10 @@ app.post("/get-messages", async (req, res) => {
       .status(400);
   }
 });
-
-app.listen(3000, () => {
-  console.log("listening on 3000");
-});
+if (process.env.ENVIRONMENT === "production") {
+  exports.handler = ServerlessHttp(app);
+} else {
+  app.listen(3000, () => {
+    console.log(`Server is listening on port ${3000}.`);
+  });
+}
