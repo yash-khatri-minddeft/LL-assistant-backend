@@ -14,17 +14,17 @@ const whitelist = ORIGIN.split(",");
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
+// var corsOptions = {
+//   origin: function (origin, callback) {
+//     if (whitelist.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+// };
 
-app.use(cors(corsOptions));
+app.use(cors({ origin: "*" }));
 
 app.post("/create-thread", async (req, res) => {
   try {
