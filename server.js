@@ -9,33 +9,23 @@ require("dotenv").config();
 
 // parse application/json
 app.use(bodyParser.json());
-const { ASSISTANT_ID, OPENAI_API_KEY } = process.env;
+const { ASSISTANT_ID, OPENAI_API_KEY, ORIGIN } = process.env;
+const whitelist = ORIGIN.split(",");
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
-app.use(
-  cors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  })
-);
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS,CONNECT,TRACE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Content-Type-Options, Accept, X-Requested-With, Origin, Access-Control-Request-Method, Access-Control-Request-Headers"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-  res.setHeader("Access-Control-Allow-Private-Network", true);
-  //  Firefox caps this at 24 hours (86400 seconds). Chromium (starting in v76) caps at 2 hours (7200 seconds). The default value is 5 seconds.
-  res.setHeader("Access-Control-Max-Age", 7200);
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
-  next();
-});
+app.use(cors(corsOptions));
+
 app.post("/create-thread", async (req, res) => {
   try {
     const thread = await openai.beta.threads.create();
@@ -132,7 +122,7 @@ app.post("/get-messages", async (req, res) => {
 if (process.env.ENVIRONMENT === "production") {
   exports.handler = ServerlessHttp(app);
 } else {
-  app.listen(3000, () => {
-    console.log(`Server is listening on port ${3000}.`);
+  app.listen(4000, () => {
+    console.log(`Server is listening on port ${4000}.`);
   });
 }
